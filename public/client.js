@@ -39,70 +39,107 @@ function createNoteElement(note){
     const el = document.createElement('div');
     el.className='note';
     el.dataset.id = note.id;
-
     if(note.width) el.style.width = note.width+'px';
     if(note.height) el.style.height = note.height+'px';
 
-    // Textarea
+    // --- Textarea ---
     const textarea = document.createElement('textarea');
-    textarea.value = note.text||'';
+    textarea.value = note.text || '';
     textarea.rows = 6;
     textarea.addEventListener('input', debounce(()=>{
         const author = getCookie('memoUser')||'Anonymous';
         socket.emit('updateNote',{id:note.id, text:textarea.value, author});
-    },500));
+    }, 500));
 
-    // Resize observer only fires if user resizes
-    let lastWidth = note.width ?? el.offsetWidth;
-    let lastHeight = note.height ?? el.offsetHeight;
-    let userResized = false;
+    // --- Attachments container ---
+    const attachmentsDiv = document.createElement('div');
+    attachmentsDiv.className='attachments';
 
-    el.addEventListener('mousedown', e=>{
-        if(e.target===textarea) return; // ignore typing
-        userResized = true;
+    function renderAttachments(){
+        attachmentsDiv.innerHTML = '';
+        (note.attachments || []).forEach((att, idx) => {
+            const div = document.createElement('div');
+            div.className = 'attachment-item';
+            const a = document.createElement('a');
+            a.href = att.url;
+            a.textContent = att.originalName;
+            a.target = '_blank';
+            const rm = document.createElement('button');
+            rm.textContent = '❌';
+            rm.className = 'btn';
+            rm.addEventListener('click', () => {
+                if(!confirm('Remove this file?')) return;
+                note.attachments.splice(idx, 1);
+                const author = getCookie('memoUser') || 'Anonymous';
+                socket.emit('updateNote', { id: note.id, attachments: note.attachments, author });
+            });
+            div.appendChild(a);
+            div.appendChild(rm);
+            attachmentsDiv.appendChild(div);
+        });
+    }
+    renderAttachments();
+
+    // --- File upload using label & icon ---
+    const fileLabel = document.createElement('label');
+    fileLabel.style.cursor = 'pointer';
+    fileLabel.style.display = 'inline-block';
+    fileLabel.style.marginTop = '6px';
+    fileLabel.title = 'Attach file';
+    fileLabel.innerHTML = '📎'; // small paperclip icon
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.style.display = 'none'; // hide actual input
+    fileLabel.appendChild(fileInput);
+
+    fileInput.addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.error) { alert('Upload failed'); return; }
+        note.attachments = note.attachments || [];
+        note.attachments.push(data);
+        const author = getCookie('memoUser') || 'Anonymous';
+        socket.emit('updateNote', { id: note.id, attachments: note.attachments, author });
     });
 
-    const resizeObserver = new ResizeObserver(debounce(()=>{
-        const currentWidth = el.offsetWidth;
-        const currentHeight = el.offsetHeight;
-
-        if(!userResized) return;
-        if(currentWidth===lastWidth && currentHeight===lastHeight) return;
-
-        lastWidth = currentWidth;
-        lastHeight = currentHeight;
-        const author = getCookie('memoUser')||'Anonymous';
-        socket.emit('updateNote',{
-            id:note.id,
-            width:currentWidth,
-            height:currentHeight,
-            author,
-            actionType:'resized'
-        });
-    },1000));
-    resizeObserver.observe(el);
-
-    // Actions
-    const actions = document.createElement('div'); actions.className='actions';
-    const delBtn = document.createElement('button'); delBtn.textContent='🗑'; delBtn.className='btn';
-    delBtn.addEventListener('click',()=>{
+    // --- Actions ---
+    const actions = document.createElement('div');
+    actions.className='actions';
+    const delBtn = document.createElement('button');
+    delBtn.textContent='🗑';
+    delBtn.className='btn';
+    delBtn.addEventListener('click', ()=>{
         if(!confirm('Delete this note?')) return;
         const author = getCookie('memoUser')||'Anonymous';
         socket.emit('deleteNote',{id:note.id, author});
     });
     actions.appendChild(delBtn);
 
-    // Meta
-    const meta = document.createElement('div'); meta.className='meta';
+    // --- Meta ---
+    const meta = document.createElement('div');
+    meta.className='meta';
     const shortId = note.id.slice(0,8)+'…';
-    const idEl = document.createElement('code'); idEl.textContent=shortId; idEl.title=note.id;
+    const idEl = document.createElement('code');
+    idEl.textContent=shortId;
+    idEl.title=note.id;
     idEl.style.cursor='pointer';
     idEl.addEventListener('click',()=>{navigator.clipboard.writeText(note.id); alert('Note ID copied: '+note.id);});
     meta.innerHTML = `<span>${escapeHtml(note.author||'Anonymous')}</span>
                       <span>${new Date(note.updatedAt||note.createdAt).toLocaleString()}</span>`;
     meta.prepend(idEl);
 
-    el.appendChild(actions); el.appendChild(textarea); el.appendChild(meta);
+    // --- Append all ---
+    el.appendChild(textarea);
+    el.appendChild(fileLabel);       // clickable icon
+    el.appendChild(attachmentsDiv);
+    el.appendChild(actions);
+    el.appendChild(meta);
+
     return el;
 }
 
@@ -111,17 +148,35 @@ function renderNotes(notes){
     notes.sort((a,b)=>(a.order||0)-(b.order||0)).forEach(n=>board.appendChild(createNoteElement(n)));
 }
 
+const userColors = {}; // store assigned colors
+const availableColors = [
+    '#FFD700', '#ADFF2F', '#FF69B4', '#87CEFA', '#FFA07A',
+    '#DA70D6', '#40E0D0', '#FF8C00', '#8FBC8F', '#FF6347'
+];
+
+function getUserColor(user) {
+    if (!userColors[user]) {
+        // Assign a random available color
+        const color = availableColors.shift() || '#' + Math.floor(Math.random()*16777215).toString(16);
+        userColors[user] = color;
+    }
+    return userColors[user];
+}
+
 function renderHistory(history){
     historyList.innerHTML='';
     history.slice().reverse().forEach(item=>{
-        let color='#000';
-        if(item.action==='created') color='green';
-        else if(item.action==='updated') color='orange';
-        else if(item.action==='deleted') color='red';
-        else if(item.action==='resized') color='blue';
+        const userColor = getUserColor(item.author);
+
         const li = document.createElement('li');
-        li.innerHTML=`<strong style="color:${color}">${escapeHtml(item.author)}</strong> ${item.action} note (${item.noteId})<br>
-                      <em>${escapeHtml(item.text)}</em><br>
+        li.style.backgroundColor = userColor + '33'; // transparent background
+        li.style.padding = '4px';
+        li.style.marginBottom = '2px';
+        li.style.borderLeft = `5px solid ${userColor}`; // colored bar
+
+        li.innerHTML=`<strong>${escapeHtml(item.author)}</strong> ${item.action} note (${item.noteId})<br>
+                      ${item.extra ? `<em>${escapeHtml(item.extra)}</em><br>` : ''}
+                      ${item.text ? `<em>Text: ${escapeHtml(item.text)}</em><br>` : ''}
                       <small>${new Date(item.timestamp).toLocaleString()}</small>`;
         historyList.appendChild(li);
     });
@@ -139,38 +194,44 @@ function renderHistory(history){
 socket.on('noteCreated', note => {
     const el = createNoteElement(note);
     board.appendChild(el);
+
     el.scrollIntoView({behavior:'smooth', block:'center'});
     el.querySelector('textarea').focus();
 });
-socket.on('noteUpdated', note => {
+
+socket.on('noteUpdated', note=>{
     const el = board.querySelector(`.note[data-id="${note.id}"]`);
-    if (el) {
-        const textarea = el.querySelector('textarea');
-        textarea.value = note.text;
-
+    if(el){
+        el.querySelector('textarea').value = note.text;
+        const attachmentsDiv = el.querySelector('.attachments');
+        attachmentsDiv.innerHTML='';
+        (note.attachments||[]).forEach((att,idx)=>{
+            const div = document.createElement('div');
+            div.className='attachment-item';
+            const a = document.createElement('a'); a.href=att.url; a.textContent=att.originalName; a.target='_blank';
+            const rm = document.createElement('button'); rm.textContent='❌';
+            rm.addEventListener('click', ()=>{
+                note.attachments.splice(idx,1);
+                const author = getCookie('memoUser')||'Anonymous';
+                socket.emit('updateNote',{id:note.id, attachments: note.attachments, author});
+            });
+            div.appendChild(a); div.appendChild(rm); attachmentsDiv.appendChild(div);
+        });
         const meta = el.querySelector('.meta');
-
-        // Update author and timestamp only, keep the code element
-        const codeEl = meta.querySelector('code');
-        if (codeEl) codeEl.title = note.id; // just in case
-
-        const infoSpans = meta.querySelectorAll('span');
-        if (infoSpans.length >= 2) {
-            infoSpans[0].textContent = note.author || 'Anonymous';
-            infoSpans[1].textContent = new Date(note.updatedAt || note.createdAt).toLocaleString();
-        }
-    } else {
-        board.appendChild(createNoteElement(note));
-    }
+        const spans = meta.querySelectorAll('span');
+        spans[0].textContent = note.author||'Anonymous';
+        spans[1].textContent = new Date(note.updatedAt||note.createdAt).toLocaleString();
+    } else board.appendChild(createNoteElement(note));
 });
 socket.on('noteDeleted', payload=>{ const el=board.querySelector(`.note[data-id="${payload.id}"]`); if(el) el.remove(); });
 socket.on('historyUpdated', history=>renderHistory(history));
 
 // New note
-newNoteBtn.addEventListener('click',()=>{
+newNoteBtn.addEventListener('click', async ()=>{
     const author=getCookie('memoUser')||'Anonymous';
     socket.emit('createNote',{text:'',author});
 });
+
 
 // Toggle history
 const toggleBtn = document.getElementById('toggleHistoryBtn');
