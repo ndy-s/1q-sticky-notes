@@ -1,40 +1,82 @@
+/* Base */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     background: #f7f7f7;
+    color: #333;
 }
 
+/* Header */
 header {
     background: #264653;
     color: white;
     padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 header h1 {
     margin: 0;
     font-size: 18px;
+    flex-shrink: 0;
 }
 
+#userArea {
+    flex: 1;
+    font-weight: bold;
+}
+
+header .btn {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: #2a9d8f;
+    color: white;
+    transition: background 0.2s;
+}
+
+header .btn:hover {
+    background: #21867a;
+}
+
+/* Main layout */
 .main {
     display: flex;
     gap: 20px;
     padding: 10px;
+    flex-wrap: wrap;
 }
 
+/* Panels */
 .left-panel {
     flex: 3;
+    min-width: 300px;
 }
 
 .right-panel {
     flex: 1;
     background: #f0f0f0;
-    padding: 10px;
+    padding: 12px;
     max-height: 80vh;
     overflow-y: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
 }
 
+.right-panel h3 {
+    margin-top: 0;
+}
+
+/* Controls */
 .controls {
     padding: 12px 16px;
+    margin-bottom: 8px;
 }
 
 .btn {
@@ -44,6 +86,7 @@ header h1 {
     cursor: pointer;
 }
 
+/* Board & Notes */
 .board {
     display: flex;
     flex-wrap: wrap;
@@ -52,24 +95,29 @@ header h1 {
 }
 
 .note {
+    position: relative; /* important for actions */
+    display: flex;
+    flex-direction: column;
     width: 220px;
     min-width: 150px;
     max-width: 500px;
     min-height: 140px;
-    max-height: 600px;
-    background: #fff3b0;
-    border-radius: 8px;
-    padding: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-
+    max-height: 500px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
     resize: both;
-    overflow: auto;
-    transition: all 0.1s ease;
+    overflow: hidden;
+    transition: all 0.2s ease;
 }
 
+.note.dragging {
+    opacity: 0.6;
+    transform: scale(0.97);
+}
+
+/* Textarea */
 .note textarea {
     border: none;
     background: transparent;
@@ -80,22 +128,59 @@ header h1 {
     min-height: 80px;
     max-height: 500px;
     overflow: auto;
+    outline: none;
 }
 
+/* Meta info */
 .note .meta {
     font-size: 12px;
-    color: #333;
+    color: #555;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-top: 8px;
+    gap: 4px;
 }
 
+.note code {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 11px;
+    color: #555;
+    user-select: none;
+}
+
+.note code:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Actions (Delete button) */
 .note .actions {
     position: absolute;
-    right: 8px;
     top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    z-index: 2;
 }
 
+.note .actions .btn {
+    padding: 4px 6px;
+    font-size: 12px;
+    background: #f56565;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.note .actions .btn:hover {
+    background: #c53030;
+}
+
+/* History list */
 .right-panel ul {
     list-style: none;
     padding: 0;
@@ -104,6 +189,20 @@ header h1 {
 
 .right-panel li {
     border-bottom: 1px solid #ccc;
-    padding: 4px 0;
+    padding: 6px 4px;
+    line-height: 1.4;
+}
+
+.right-panel li em {
+    display: block;
+    font-style: normal;
+    color: #444;
+    margin: 2px 0;
+    word-wrap: break-word;
+}
+
+.right-panel li small {
+    color: #777;
+    font-size: 11px;
 }
 
