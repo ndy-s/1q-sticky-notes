@@ -2,6 +2,7 @@ const socket = io();
 const board = document.getElementById('board');
 const newNoteBtn = document.getElementById('newNoteBtn');
 const userArea = document.getElementById('userArea');
+const userListEl = document.getElementById('userList');
 const historyList = document.getElementById('historyList');
 
 function setCookie(name, value, days=365){
@@ -16,13 +17,30 @@ function getCookie(name){
     return null;
 }
 
-async function askNameIfNeeded(){
-    let name = getCookie('memoUser');
-    if(!name){
-        name = prompt('Enter your name:')||'Anonymous';
-        setCookie('memoUser', name);
+async function askNameIfNeeded() {
+    let name = getCookie('memoUser') || '';
+
+    while (true) {
+        if (!name) {
+            name = prompt('Enter your name (required):')?.trim() || '';
+        }
+
+        if (!name) {
+            alert('You must enter a name to continue.');
+            continue;
+        }
+
+        const res = await new Promise(resolve => {
+            socket.emit('registerName', name, resolve);
+        });
+
+        if (res.success) break;
+        alert(res.error); 
+        name = '';
     }
-    userArea.innerHTML = `Logged in as: <strong>${name}</strong>`;
+
+    setCookie('memoUser', name);
+    userArea.innerHTML = `Logged in as: <strong>${escapeHtml(name)}</strong>`;
     return name;
 }
 
@@ -190,7 +208,12 @@ function renderHistory(history){
     renderNotes(notes); renderHistory(history);
 })();
 
+
 // Socket events
+socket.on('onlineUsers', users => {
+    userListEl.textContent = users.join(', ') || 'No one';
+});
+
 socket.on('noteCreated', note => {
     const el = createNoteElement(note);
     board.appendChild(el);

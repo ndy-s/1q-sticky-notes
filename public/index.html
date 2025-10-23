@@ -1,34 +1,37 @@
 <!doctype html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>1Q Sticky Notes Shared</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<header>
-    <h1>1Q Sticky Notes (Shared)</h1>
-    <div id="userArea"></div>
-    <button id="toggleHistoryBtn" class="btn" style="margin-left:10px;">Hide History</button>
-</header>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>1Q Sticky Notes Shared</title>
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body>
+        <header>
+            <h1>1Q Sticky Notes (Shared)</h1>
+            <div id="userArea"></div>
+            <div id="onlineUsers" style="margin-left:20px;">
+                <strong>Online Users:</strong> <span id="userList">0</span>
+            </div>
+            <button id="toggleHistoryBtn" class="btn" style="margin-left:10px;">Hide History</button>
+        </header>
 
-<div id="main" class="main">
-    <div class="left-panel">
-        <div class="controls">
-            <button id="newNoteBtn">➕ New Note</button>
+        <div id="main" class="main">
+            <div class="left-panel">
+                <div class="controls">
+                    <button id="newNoteBtn">➕ New Note</button>
+                </div>
+                <div id="board" class="board"></div>
+            </div>
+
+            <div class="right-panel">
+                <h3>Activity History</h3>
+                <ul id="historyList"></ul>
+            </div>
         </div>
-        <div id="board" class="board"></div>
-    </div>
 
-    <div class="right-panel">
-        <h3>Activity History</h3>
-        <ul id="historyList"></ul>
-    </div>
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script src="/client.js"></script>
-</body>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/client.js"></script>
+    </body>
 </html>
 
