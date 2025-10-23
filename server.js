@@ -90,7 +90,8 @@ async function writeJSON(file,data){ await fs.writeJson(file, data, {spaces:2});
                 attachments: [],
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
-                order: notesCache.length
+                order: notesCache.length,
+                creatorId: payload.creatorId
             };
             notesCache.push(note);
             await writeJSON(NOTES_FILE, notesCache);

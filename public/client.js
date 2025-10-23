@@ -195,8 +195,10 @@ socket.on('noteCreated', note => {
     const el = createNoteElement(note);
     board.appendChild(el);
 
-    el.scrollIntoView({behavior:'smooth', block:'center'});
-    el.querySelector('textarea').focus();
+    if(note.creatorId === socket.id){
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        el.querySelector('textarea').focus();
+    }
 });
 
 socket.on('noteUpdated', note=>{
@@ -228,10 +230,9 @@ socket.on('historyUpdated', history=>renderHistory(history));
 
 // New note
 newNoteBtn.addEventListener('click', async ()=>{
-    const author=getCookie('memoUser')||'Anonymous';
-    socket.emit('createNote',{text:'',author});
+    const author = getCookie('memoUser')||'Anonymous';
+    socket.emit('createNote', { text: '', author, creatorId: socket.id });
 });
-
 
 // Toggle history
 const toggleBtn = document.getElementById('toggleHistoryBtn');
