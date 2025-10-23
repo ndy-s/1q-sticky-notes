@@ -182,20 +182,21 @@ function getUserColor(user) {
 }
 
 function renderHistory(history){
-    historyList.innerHTML='';
-    history.slice().reverse().forEach(item=>{
+    historyList.innerHTML = '';
+    history.slice().reverse().forEach(item => {
         const userColor = getUserColor(item.author);
 
         const li = document.createElement('li');
-        li.style.backgroundColor = userColor + '33'; // transparent background
-        li.style.padding = '4px';
-        li.style.marginBottom = '2px';
-        li.style.borderLeft = `5px solid ${userColor}`; // colored bar
+        li.style.borderLeft = `6px solid ${userColor}`;
+        li.style.backgroundColor = userColor + '15'; 
 
-        li.innerHTML=`<strong>${escapeHtml(item.author)}</strong> ${item.action} note (${item.noteId})<br>
-                      ${item.extra ? `<em>${escapeHtml(item.extra)}</em><br>` : ''}
-                      ${item.text ? `<em>Text: ${escapeHtml(item.text)}</em><br>` : ''}
-                      <small>${new Date(item.timestamp).toLocaleString()}</small>`;
+        li.innerHTML = `
+            <div><strong>${escapeHtml(item.author)}</strong> ${item.action} note (${item.noteId})</div>
+            ${item.extra ? `<div><em>${escapeHtml(item.extra)}</em></div>` : ''}
+            ${item.text ? `<div><em>Text: ${escapeHtml(item.text)}</em></div>` : ''}
+            <small>${new Date(item.timestamp).toLocaleString()}</small>
+        `;
+
         historyList.appendChild(li);
     });
 }
