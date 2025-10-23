@@ -1,0 +1,7 @@
+.idea/
+node_modules/
+uploads/
+
+history.json
+notes.json
+package-lock.json

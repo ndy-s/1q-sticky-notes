@@ -6,7 +6,6 @@ const fs = require('fs-extra');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
-const ngrok = require('ngrok');
 
 const PORT = 10101;
 const NOTES_FILE = path.join(__dirname,'notes.json');
@@ -124,7 +123,6 @@ async function writeJSON(file,data){ await fs.writeJson(file, data, {spaces:2});
                 actionToLog = 'resized';
             }
 
-            // Attachment changes
             if(payload.attachments !== undefined){
                 const removedFiles = note.attachments.filter(old => !payload.attachments.find(n=>n.filename===old.filename));
                 removedFiles.forEach(att=>{
@@ -138,7 +136,7 @@ async function writeJSON(file,data){ await fs.writeJson(file, data, {spaces:2});
 
                 note.attachments = payload.attachments;
                 changed = true;
-                actionToLog = null; // prevent duplicate "updated" log
+                actionToLog = null;
             }
 
             if(!changed) return;
@@ -172,12 +170,8 @@ async function writeJSON(file,data){ await fs.writeJson(file, data, {spaces:2});
         socket.on('disconnect', ()=>console.log('Client disconnected', socket.id));
     });
 
-    server.listen(PORT, async ()=>{
+    server.listen(PORT, ()=>{
         console.log(`Server running on http://localhost:${PORT}`);
-        try {
-            const url = await ngrok.connect({addr: PORT, authtoken_from_env: true, region: 'ap'});
-            console.log(`Public URL: ${url}`);
-        } catch(e){ console.error('Ngrok failed', e); }
     });
 
 })();
