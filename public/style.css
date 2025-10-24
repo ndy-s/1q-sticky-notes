@@ -74,16 +74,23 @@ header .btn:hover { background: #2563eb; }
     display: flex;
     flex-direction: column;
     width: 220px;
-    min-width: 150px;
-    min-height: 140px;
+    min-width: 220px;
+    min-height: 220px;
+    max-width: 500px;
+    max-height: 500px;
     background: #fff;
+    border: 2px solid #ddd;
     border-radius: 16px;
     padding: 12px;
     box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     transition: transform 0.2s, box-shadow 0.2s;
-    overflow: hidden;
+    resize: both;
+    overflow: auto;
 }
-.note:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.12); }
+.note:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+}
 
 /* Textarea */
 .note textarea {
@@ -116,7 +123,7 @@ header .btn:hover { background: #2563eb; }
     color: #555;
 }
 
-/* Actions (Delete button) */
+/* Actions */
 .note .actions {
     position: absolute;
     top: 8px;
@@ -124,14 +131,38 @@ header .btn:hover { background: #2563eb; }
     display: flex;
     gap: 4px;
 }
+
 .note .actions .btn {
     padding: 4px 6px;
     font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Copy button */
+.note .actions .btn-copy {
+    background: #10b981;
+    color: white;
+}
+.note .actions .btn-copy:hover {
+    background: #059669;
+}
+
+/* Delete button */
+.note .actions .btn-delete {
     background: #ef4444;
     color: white;
-    border-radius: 6px;
 }
-.note .actions .btn:hover { background: #dc2626; }
+.note .actions .btn-delete:hover {
+    background: #dc2626;
+}
 
 /* Attachments */
 .attachments {

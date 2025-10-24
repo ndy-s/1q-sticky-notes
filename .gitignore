@@ -1,7 +1,5 @@
 .idea/
 node_modules/
-uploads/
+data/
 
-history.json
-notes.json
 package-lock.json
