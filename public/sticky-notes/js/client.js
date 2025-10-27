@@ -117,8 +117,30 @@ newNoteBtn.addEventListener('click', async () => {
 
 openRemoteBtn.addEventListener('click', async () => {
     const author = await askNameIfNeeded(socket);
-    socket.emit('openRemoteBrowser', { author });
+    const remoteUrl = `/remote/index.html?author=${encodeURIComponent(author)}`;
+    const remoteWin = window.open(remoteUrl, '_blank', 'width=1200,height=800');
+
+    if (!remoteWin) return;
+
+    const idleTimeout = 5 * 60 * 1000; // 5 minutes
+    let idleTimer;
+
+    const resetTimer = () => {
+        if (idleTimer) clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+            remoteWin.close();
+            console.log("Remote window closed due to inactivity");
+        }, idleTimeout);
+    };
+
+    const events = ['mousemove', 'keydown', 'scroll', 'click'];
+    events.forEach(ev => {
+        remoteWin.addEventListener(ev, resetTimer);
+    });
+
+    resetTimer();
 });
+
 
 toggleBtn.addEventListener('click', async () => {
     await askNameIfNeeded(socket);

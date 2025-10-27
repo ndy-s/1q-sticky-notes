@@ -1,28 +1,41 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const cookieParser = require('cookie-parser');
-const path = require('path');
+import express from 'express';
+import { createServer } from 'http';
+import { Server as IOServer } from 'socket.io';
+import cookieParser from 'cookie-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const { initNotesManager } = require('./lib/notesManager.js');
-const { initUserManager } = require('./lib/userManager.js');
-const { setupFileUpload } = require('./lib/fileManager.js');
+import { initNotesManager } from './lib/notesManager.js';
+import { initUserManager } from './lib/userManager.js';
+import { setupFileUpload } from './lib/fileManager.js';
+import BrowserController from './lib/browser.js';
+import ControlQueue from './lib/queue.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = 10101;
-const SHARED_PW = process.env.SHARED_PW || 'letmein';
+
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const server = createServer(app);
+const io = new IOServer(server);
+const ioRemote = new IOServer(server, { path: '/socket.io-remote' });
 
 app.use(cookieParser());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname,'uploads')));
-app.use(express.static(path.join(__dirname,'public')));
-
+app.use('/uploads', express.static(path.join(__dirname, './data/uploads')));
+const notesPath = path.join(__dirname, './public/sticky-notes');
+app.use(express.static(notesPath));
 setupFileUpload(app);
+
+const remotePath = path.join(__dirname, './public/remote-browser');
+app.use('/remote', express.static(remotePath));
 
 const notesManager = initNotesManager(io);
 const userManager = initUserManager(io);
+
+const browser = new BrowserController(ioRemote);
+const queue = new ControlQueue(ioRemote);
 
 app.get('/api/notes', async (req, res)=> {
     res.json(notesManager.getNotes())
@@ -34,7 +47,7 @@ app.get('/api/history', async (req, res) => {
 });
 
 io.on('connection', socket => {
-    console.log('Client connected', socket.id);
+    console.log('Sticky notes client connected:', socket.id);
 
     socket.on('registerName', async (name, callback) => {
         const result = await userManager.register(socket.id, name);
@@ -56,13 +69,73 @@ io.on('connection', socket => {
         if(note) io.emit('noteDeleted', { id: payload.id });
     });
 
-    socket.on('openRemoteBrowser', url => {
-        console.log(url);
-    });
-
     socket.on('disconnect', () => {
         userManager.remove(socket.id);
     });
 });
 
-server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+// Remote Browser Socket
+ioRemote.on('connection', async socket => {
+    const { author } = socket.handshake.query;
+    console.log('Remote browser client connected:', socket.id, author);
+
+    const existingSession = queue.clients.find(c => c.author === author);
+    if (existingSession) {
+        console.log(`Author "${author}" already has an active session. Rejecting new connection.`);
+        socket.emit('session-rejected', { reason: 'You already have an active session.' });
+        socket.disconnect(true);
+        return;
+    }
+
+    queue.add(socket.id, author);
+
+    socket.emit('queue-update', {
+        queue: queue.list(),
+        current: queue.current()?.id
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Remote browser client disconnected:', socket.id, author);
+        queue.remove(socket.id);
+    });
+
+    const hasControl = () => queue.current()?.id === socket.id;
+
+    socket.on('control-event', event => {
+        if (!hasControl()) return;
+        browser.handleInput(event);
+    });
+
+    socket.on('navigate', url => {
+        if (!hasControl()) return;
+        browser.navigate(url);
+    });
+
+    socket.on('nav-back', () => {
+        if (!hasControl()) return;
+        browser.handleButton('back');
+    });
+
+    socket.on('nav-forward', () => {
+        if (!hasControl()) return;
+        browser.handleButton('forward');
+    });
+
+    socket.on('nav-refresh', () => {
+        if (!hasControl()) return;
+        browser.handleButton('refresh');
+    });
+
+    socket.on("screen-size", size => {
+        browser.setClientRes(size.w, size.h);
+    });
+
+    socket.on('release-control', () => {
+        queue.next();
+    });
+});
+
+server.listen(PORT, async () => {
+    await browser.launch();
+    console.log(`Sticky Notes + Remote Browser running at http://localhost:${PORT}`);
+});

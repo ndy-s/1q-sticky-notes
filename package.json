@@ -10,13 +10,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
+    "chrome-launcher": "^1.2.1",
     "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
     "fs-extra": "^11.3.2",
     "multer": "^2.0.2",
     "puppeteer": "^24.26.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "socket.io": "^4.8.1",
     "uuid": "^13.0.0"
   }
