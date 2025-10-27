@@ -5,11 +5,11 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { initNotesManager } from './lib/notesManager.js';
-import { initUserManager } from './lib/userManager.js';
-import { setupFileUpload } from './lib/fileManager.js';
-import BrowserController from './lib/browser.js';
-import ControlQueue from './lib/queue.js';
+import { initNotesManager } from './lib/NotesManager.js';
+import { initUserManager } from './lib/UserManager.js';
+import { setupFileUpload } from './lib/FileManager.js';
+import BrowserController from './lib/BrowserController.js';
+import ControlQueue from './lib/ControlQueue.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
