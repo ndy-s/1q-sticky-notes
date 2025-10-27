@@ -9,6 +9,8 @@ function getXY(e) {
     };
 }
 
+let lastFocusedElement = null;
+
 export function initControls() {
     elements.wrapper.setAttribute("tabindex", "0");
     elements.wrapper.addEventListener("mousedown", () => elements.wrapper.focus());
@@ -37,6 +39,21 @@ export function initControls() {
 
     elements.wrapper.addEventListener("keydown", sendKey);
     elements.wrapper.addEventListener("keyup", sendKey);
+    elements.clipboardInput.addEventListener("paste", (e) => {
+        e.preventDefault();
+
+        const text = (e.clipboardData).getData("text");
+        console.log(`Clipboard: ${text}`);
+
+        socket.emit("control-event", {
+            type: "keyboard",
+            action: "keydown",
+            key: text,
+            isChar: true
+        });
+
+        elements.clipboardInput.value = "";
+    });
 }
 
 function sendKey(e) {
@@ -44,41 +61,7 @@ function sendKey(e) {
     if (document.activeElement === elements.urlInput) return;
 
     const isChar = e.key.length === 1;
-    const action = isChar && e.type === "keydown" ? "type" : e.type === "keydown" ? "down" : "up";
-
-    const active = document.activeElement;
-    let selector = null;
-    if (active && active !== document.body) {
-        if (active.id) selector = `#${active.id}`;
-        else if (active.className) selector = `.${active.className.split(' ').join('.')}`;
-        else selector = active.tagName.toLowerCase();
-    }
-
-    // Handle Ctrl/Cmd+V paste
-    const isMac = navigator.platform.toUpperCase().includes('MAC');
-    const ctrl = isMac ? e.metaKey : e.ctrlKey;
-
-    if (ctrl && e.key.toLowerCase() === "v" && e.type === "keydown") {
-        e.preventDefault();
-
-        const clipboardData = e.clipboardData || window.clipboardData;
-        const text = clipboardData?.getData('text') || '';
-
-        if (text) {
-            socket.emit("control-event", {
-                type: "keyboard",
-                action: "type",
-                key: text,
-                code: null,
-                shift: e.shiftKey,
-                ctrl: e.ctrlKey,
-                alt: e.altKey,
-                meta: e.metaKey,
-                selector
-            });
-        }
-        return;
-    }
+    const action = e.type;
 
     socket.emit("control-event", {
         type: "keyboard",
@@ -89,7 +72,7 @@ function sendKey(e) {
         ctrl: e.ctrlKey,
         alt: e.altKey,
         meta: e.metaKey,
-        selector
+        isChar
     });
 
     e.preventDefault();

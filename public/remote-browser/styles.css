@@ -159,6 +159,11 @@ body {
     outline: none;
 }
 
+.screen-wrapper:focus {
+    outline: 2px solid #0078ff;
+    outline-offset: 4px;
+}
+
 .screen-wrapper.view-only #screen {
     filter: blur(8px);
     pointer-events: none; 
@@ -245,3 +250,4 @@ body {
         bottom: 95px;
     }
 }
+

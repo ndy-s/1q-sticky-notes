@@ -9,7 +9,7 @@ export const socket = io({ path: '/socket.io-remote', query: { author } });
 export const elements = {
     screen: document.getElementById('screen'),
     wrapper: document.getElementById('screen-wrapper'),
-    clipboardCatcher: document.getElementById('clipboard-catcher'),
+    clipboardInput: document.getElementById('clipboard-input'),
     urlInput: document.getElementById('url'),
     goBtn: document.getElementById('go'),
     backBtn: document.getElementById('btn-back'),
