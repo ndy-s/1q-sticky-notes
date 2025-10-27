@@ -54,6 +54,32 @@ function sendKey(e) {
         else selector = active.tagName.toLowerCase();
     }
 
+    // Handle Ctrl/Cmd+V paste
+    const isMac = navigator.platform.toUpperCase().includes('MAC');
+    const ctrl = isMac ? e.metaKey : e.ctrlKey;
+
+    if (ctrl && e.key.toLowerCase() === "v" && e.type === "keydown") {
+        e.preventDefault();
+
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const text = clipboardData?.getData('text') || '';
+
+        if (text) {
+            socket.emit("control-event", {
+                type: "keyboard",
+                action: "type",
+                key: text,
+                code: null,
+                shift: e.shiftKey,
+                ctrl: e.ctrlKey,
+                alt: e.altKey,
+                meta: e.metaKey,
+                selector
+            });
+        }
+        return;
+    }
+
     socket.emit("control-event", {
         type: "keyboard",
         action,

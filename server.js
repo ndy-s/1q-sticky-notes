@@ -70,6 +70,7 @@ io.on('connection', socket => {
     });
 
     socket.on('disconnect', () => {
+        console.log('Sticky notes client disconnected:', socket.id);
         userManager.remove(socket.id);
     });
 });
