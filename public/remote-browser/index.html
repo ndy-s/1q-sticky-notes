@@ -4,10 +4,6 @@
         <meta charset="UTF-8">
         <title>Remote Browser</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
         <link rel="stylesheet" href="./styles.css">
         <script src="/socket.io/socket.io.js"></script>
     </head>
@@ -15,21 +11,21 @@
         <header class="browser-bar">
             <div class="nav-left">
                 <button id="btn-back" class="nav-btn" title="Back (Alt + ←)">
-                    <span class="material-icons">arrow_back</span>
+                    <img src="assets/icons/arrow_back.svg" alt="Back" class="icon">
                 </button>
                 <button id="btn-forward" class="nav-btn" title="Forward (Alt + →)">
-                    <span class="material-icons">arrow_forward</span>
+                    <img src="assets/icons/arrow_forward.svg" alt="Forward" class="icon">
                 </button>
                 <button id="btn-refresh" class="nav-btn" title="Refresh (F5)">
-                    <span class="material-icons">refresh</span>
+                    <img src="assets/icons/refresh.svg" alt="Refresh" class="icon">
                 </button>
             </div>
 
             <div class="url-container">
-                <span class="material-icons url-icon">search</span>
+                <img src="assets/icons/captive_portal.svg" alt="Web" class="icon">
                 <input id="url" class="url-input" placeholder="Search or enter URL" title="Press Enter to go">
                 <button id="go" class="go-btn" title="Go (Enter)">
-                    <span class="material-icons">arrow_forward</span>
+                    <img src="assets/icons/search.svg" alt="Search" class="icon">
                 </button>
             </div>
 

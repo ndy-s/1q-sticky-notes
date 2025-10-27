@@ -20,9 +20,15 @@ export function updateQueue(queue, currentId, socketId) {
 
     const pos = queue.findIndex(item => item.id === socketId);
 
-    const headerIcon = hasControl ? "check_circle" : "visibility";
+    const headerIconFile = hasControl ? "check_circle.svg" : "visibility.svg";
     const headerText = hasControl ? "You are in control" : "View only";
-    elements.queueEl.innerHTML = `<span class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:4px;">${headerIcon}</span>${headerText}`;
+
+    elements.queueEl.innerHTML = `
+        <img src="assets/icons/${headerIconFile}" alt="${headerText}" 
+             style="width:16px; height:16px; vertical-align:middle; margin-right:4px;">
+        ${headerText}
+    `;
+
     elements.queueEl.classList.toggle("control", hasControl);
     elements.queueEl.classList.toggle("view-only", !hasControl);
 

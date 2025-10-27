@@ -1,4 +1,4 @@
-import { setCookie, getCookie, escapeHtml, getTruncatedName, askNameIfNeeded, askPasswordIfNeeded } from './utils.js';
+import { getTruncatedName, askNameIfNeeded, askPasswordIfNeeded } from './utils.js';
 import { createNoteElement, renderNotes } from './notes.js';
 import { renderHistory } from './history.js';
 
@@ -48,6 +48,9 @@ socket.on('noteUpdated', note => {
 
     if (el) {
         el.querySelector('textarea').value = note.text;
+
+        if (note.width) el.style.width = note.width + 'px';
+        if (note.height) el.style.height = note.height + 'px';
 
         const attachmentsDiv = el.querySelector('.attachments');
         const noteObj = { ...note };
@@ -106,7 +109,6 @@ newNoteBtn.addEventListener('click', async () => {
     const author = await askNameIfNeeded(socket);
 
     const newNote = {
-        id: crypto.randomUUID(),
         text: '',
         author,
         creatorId: socket.id

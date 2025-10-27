@@ -83,7 +83,7 @@ header .btn:hover { background: #2563eb; }
     border-radius: 16px;
     padding: 12px;
     box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, width 0.1s ease, height 0.1s ease;
     resize: both;
     overflow: auto;
 }
