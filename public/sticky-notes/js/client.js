@@ -145,7 +145,7 @@ openRemoteBtn.addEventListener('click', async () => {
 toggleBtn.addEventListener('click', async () => {
     await askNameIfNeeded(socket);
 
-    if (rightPanel.style.display === 'none' || rightPanel.style.display === '') {
+    if (rightPanel.style.display === 'none') {
         rightPanel.style.display = 'block';
         toggleBtn.textContent = 'Hide History';
     } else {
