@@ -30,6 +30,32 @@ export function getTruncatedName(name, maxLength = 20) {
     return name.slice(0, maxLength - ext.length - 1) + '…' + ext;
 }
 
+export async function askPasswordIfNeeded(sharedPw = 'letmein') {
+    let pw = getCookie('memoPw') || '';
+
+    while (true) {
+        if (!pw) {
+            pw = prompt('Enter password to access this board:')?.trim() || '';
+        }
+
+        if (!pw) {
+            alert('Password is required to continue.');
+            continue;
+        }
+
+        if (pw === sharedPw) {
+            setCookie('memoPw', pw);
+            break;
+        }
+
+        alert('Incorrect password, please try again.');
+        setCookie('memoPw', '', -1);
+        pw = '';
+    }
+
+    return pw;
+}
+
 export async function askNameIfNeeded(socket) {
     let name = getCookie('memoUser') || '';
 

@@ -1,10 +1,12 @@
-import {setCookie, getCookie, escapeHtml, getTruncatedName, askNameIfNeeded } from './utils.js';
+import { setCookie, getCookie, escapeHtml, getTruncatedName, askNameIfNeeded, askPasswordIfNeeded } from './utils.js';
 import { createNoteElement, renderNotes } from './notes.js';
 import { renderHistory } from './history.js';
 
 const socket = io();
+const appBody = document.getElementById('app');
 const board = document.getElementById('board');
 const newNoteBtn = document.getElementById('newNoteBtn');
+const openRemoteBtn = document.getElementById('openRemoteBtn');
 const userArea = document.getElementById('userArea');
 const userListEl = document.getElementById('userList');
 const historyList = document.getElementById('historyList');
@@ -12,10 +14,15 @@ const rightPanel = document.querySelector('.right-panel');
 const toggleBtn = document.getElementById('toggleHistoryBtn');
 
 (async() => {
+    await askPasswordIfNeeded();
+    appBody.style.display = 'block';
+
     await askNameIfNeeded(socket);
+
     const notes = await (await fetch('/api/notes')).json();
-    const history = await (await fetch('/api/history?limit=100')).json();
     renderNotes(notes, board, socket);
+
+    const history = await (await fetch('/api/history?limit=100')).json();
     renderHistory(history, historyList);
 })();
 
@@ -28,7 +35,10 @@ socket.on('noteCreated', note => {
     board.appendChild(el);
 
     if (note.creatorId === socket.id) {
-        el.scrollIntoView({behavior:'smooth', block:'center'});
+        el.scrollIntoView({
+            behavior: 'smooth',
+            block:'center'
+        });
         el.querySelector('textarea').focus();
     }
 });
@@ -103,6 +113,11 @@ newNoteBtn.addEventListener('click', async () => {
     };
 
     socket.emit('createNote', JSON.parse(JSON.stringify(newNote)))
+});
+
+openRemoteBtn.addEventListener('click', async () => {
+    const author = await askNameIfNeeded(socket);
+    socket.emit('openRemoteBrowser', { author });
 });
 
 toggleBtn.addEventListener('click', async () => {

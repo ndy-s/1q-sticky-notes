@@ -9,6 +9,7 @@ const { initUserManager } = require('./lib/userManager.js');
 const { setupFileUpload } = require('./lib/fileManager.js');
 
 const PORT = 10101;
+const SHARED_PW = process.env.SHARED_PW || 'letmein';
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -32,37 +33,6 @@ app.get('/api/history', async (req, res) => {
     res.json(notesManager.getHistory().slice(-limit));
 });
 
-app.get('/proxy', async (req, res) => {
-    const url = req.query.url;
-    if (!url) return res.status(400).send('No URL provided');
-
-    try {
-        const response = await fetch(url);
-        const html = await response.text();
-
-        // Replace all links to route through /proxy
-        const proxiedHtml = html.replace(/href="(.*?)"/g, (match, href) => {
-            // Skip anchors
-            if (href.startsWith('#')) return match;
-
-            // Make absolute if needed
-            let absoluteHref = href;
-            if (href.startsWith('/')) {
-                const baseUrl = new URL(url);
-                absoluteHref = baseUrl.origin + href;
-            } else if (!href.startsWith('http')) {
-                absoluteHref = new URL(href, url).href;
-            }
-
-            return `href="/proxy?url=${encodeURIComponent(absoluteHref)}"`;
-        });
-
-        res.send(proxiedHtml);
-    } catch (err) {
-        res.status(500).send('Failed to fetch URL');
-    }
-});
-
 io.on('connection', socket => {
     console.log('Client connected', socket.id);
 
@@ -84,6 +54,10 @@ io.on('connection', socket => {
     socket.on('deleteNote', async payload => {
         const note = await notesManager.deleteNote(payload);
         if(note) io.emit('noteDeleted', { id: payload.id });
+    });
+
+    socket.on('openRemoteBrowser', url => {
+        console.log(url);
     });
 
     socket.on('disconnect', () => {
