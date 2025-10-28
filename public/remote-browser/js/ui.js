@@ -38,13 +38,11 @@ export function updateQueue(queue, currentId, socketId) {
     } else {
         let bannerText = "";
         if (pos === -1) {
-            bannerText = "You are not in the queue";
+            bannerText = "Not in the queue. Please wait.";
         } else if (pos === 0) {
-            bannerText = "You’re next! Waiting for your turn…";
-        } else if (pos === 1) {
-            bannerText = "Almost there! Your position: #2";
+            bannerText = "You’re next! Please wait.";
         } else {
-            bannerText = `Your position in queue: #${pos + 1}`;
+            bannerText = `You’re #${pos + 1} in the queue. Please wait.`;
         }
 
         elements.bannerEl.textContent = bannerText;

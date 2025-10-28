@@ -219,11 +219,26 @@ body {
     display: flex;
     justify-content: center;
     gap: 16px;
-    padding: 8px 0;
+    padding: 8px 12px;
     font-size: 13px;
     color: #555;
     background: #f9fafb;
     border-top: 1px solid #e5e7eb;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.keyboard-hint span {
+    white-space: nowrap;
+}
+
+.keyboard-hint::-webkit-scrollbar {
+    height: 4px;
+}
+
+.keyboard-hint::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 2px;
 }
 
 /* Responsive */
@@ -233,12 +248,15 @@ body {
         align-items: stretch;
         gap: 8px;
     }
+
     .url-container {
         margin: 0;
     }
+
     .keyboard-hint {
-        flex-direction: column;
-        gap: 4px;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 8px;
     }
 
     .status-group {
@@ -246,6 +264,7 @@ body {
         gap: 8px;
         justify-content: center;
     }
+
     .view-only-banner {
         bottom: 95px;
     }
