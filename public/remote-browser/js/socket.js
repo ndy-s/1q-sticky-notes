@@ -19,6 +19,14 @@ export function setupSocket() {
         log("Socket: Queue updated", { queue, current });
     });
 
+    socket.on("clipboard-copy", async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (err) {
+            console.error("Failed to write to clipboard:", err);
+        }
+    });
+
     socket.on('session-rejected', data => {
         alert(data.reason || "Another session is active for this user.");
         window.close();

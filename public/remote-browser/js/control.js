@@ -39,29 +39,53 @@ export function initControls() {
 
     elements.wrapper.addEventListener("keydown", sendKey);
     elements.wrapper.addEventListener("keyup", sendKey);
-    elements.clipboardInput.addEventListener("paste", (e) => {
-        e.preventDefault();
-
-        const text = (e.clipboardData).getData("text");
-        console.log(`Clipboard: ${text}`);
-
-        socket.emit("control-event", {
-            type: "keyboard",
-            action: "keydown",
-            key: text,
-            isChar: true
-        });
-
-        elements.clipboardInput.value = "";
-    });
 }
 
-function sendKey(e) {
+async function sendKey(e) {
     if (!ensureControl(e)) return;
     if (document.activeElement === elements.urlInput) return;
 
     const isChar = e.key.length === 1;
     const action = e.type;
+
+    const isPasteShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v';
+    if (isPasteShortcut) {
+        e.preventDefault();
+
+        if (e.type === 'keydown') {
+            try {
+                const text = await navigator.clipboard.readText();
+
+                socket.emit("control-event", {
+                    type: "keyboard",
+                    action: "keyup",
+                    key: "Control",
+                    code: "KeyV",
+                    shift: false,
+                    ctrl: true,
+                    alt: false,
+                    meta: false,
+                    isChar: false,
+                });
+
+                socket.emit("control-event", {
+                    type: "keyboard",
+                    action: "keydown",
+                    key: text,
+                    code: e.code,
+                    shift: e.shiftKey,
+                    ctrl: e.ctrlKey,
+                    alt: e.altKey,
+                    meta: e.metaKey,
+                    isChar,
+                });
+            } catch (err) {
+                console.error("Failed to read clipboard:", err);
+            }
+        }
+
+        return;
+    }
 
     socket.emit("control-event", {
         type: "keyboard",
