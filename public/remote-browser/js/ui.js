@@ -77,7 +77,7 @@ export function ensureControl(e) {
         alert("You are waiting in the queue…");
         return false;
     }
-    if (state.loading) return false;
-    return true;
+    return !state.loading;
+
 }
 

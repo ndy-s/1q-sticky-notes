@@ -9,8 +9,6 @@ function getXY(e) {
     };
 }
 
-let lastFocusedElement = null;
-
 export function initControls() {
     elements.wrapper.setAttribute("tabindex", "0");
     elements.wrapper.addEventListener("mousedown", () => elements.wrapper.focus());
