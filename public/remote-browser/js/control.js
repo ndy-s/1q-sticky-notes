@@ -1,5 +1,5 @@
 import { socket, elements, state, updateState } from "./config.js";
-import { ensureControl } from "./ui.js";
+import { ensureControl, showPastePopup } from "./ui.js";
 
 function getXY(e) {
     const rect = elements.screen.getBoundingClientRect();
@@ -54,31 +54,14 @@ async function sendKey(e) {
             try {
                 const text = await navigator.clipboard.readText();
 
-                socket.emit("control-event", {
-                    type: "keyboard",
-                    action: "keyup",
-                    key: "Control",
-                    code: "KeyV",
-                    shift: false,
-                    ctrl: true,
-                    alt: false,
-                    meta: false,
-                    isChar: false,
-                });
-
-                socket.emit("control-event", {
-                    type: "keyboard",
-                    action: "keydown",
-                    key: text,
-                    code: e.code,
-                    shift: e.shiftKey,
-                    ctrl: e.ctrlKey,
-                    alt: e.altKey,
-                    meta: e.metaKey,
-                    isChar,
-                });
+                sendClipboardText(text, e);
             } catch (err) {
-                console.error("Failed to read clipboard:", err);
+                console.warn("Clipboard read failed, falling back to manual paste:", err);
+
+                const text = await showPastePopup();
+                if (text && text.trim() !== "") sendClipboardText(text, e);
+
+                elements.wrapper.focus();
             }
         }
 
@@ -99,5 +82,32 @@ async function sendKey(e) {
 
     e.preventDefault();
 }
+
+function sendClipboardText(text, e) {
+    socket.emit("control-event", {
+        type: "keyboard",
+        action: "keyup",
+        key: "Control",
+        code: "KeyV",
+        shift: false,
+        ctrl: true,
+        alt: false,
+        meta: false,
+        isChar: false,
+    });
+
+    socket.emit("control-event", {
+        type: "keyboard",
+        action: "keydown",
+        key: text,
+        code: e.code,
+        shift: e.shiftKey,
+        ctrl: e.ctrlKey,
+        alt: e.altKey,
+        meta: e.metaKey,
+        isChar: true,
+    });
+}
+
 
 

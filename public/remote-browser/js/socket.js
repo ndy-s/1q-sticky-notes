@@ -1,5 +1,5 @@
 import { socket, elements, log } from "./config.js";
-import { handleScreenUpdate, setLoading, updateQueue } from "./ui.js";
+import { handleScreenUpdate, setLoading, showCopyPopup, updateQueue } from "./ui.js";
 
 export function setupSocket() {
     socket.on("loading-start", (msg) => setLoading(true, msg));
@@ -23,7 +23,8 @@ export function setupSocket() {
         try {
             await navigator.clipboard.writeText(text);
         } catch (err) {
-            console.error("Failed to write to clipboard:", err);
+            console.warn("Clipboard write failed, showing fallback:", err);
+            showCopyPopup(text);
         }
     });
 
