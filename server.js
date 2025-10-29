@@ -128,7 +128,7 @@ ioRemote.on('connection', async socket => {
     });
 
     socket.on("screen-size", size => {
-        browser.setClientRes(size.w, size.h);
+        browser.setClientResolution(size.w, size.h);
     });
 
     socket.on('release-control', () => {
