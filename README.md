@@ -8,7 +8,7 @@ I built this small web app to make life a little easier for my team. It lets you
 
 The app works over the local network (LAN), so all computers on the same network can stay in sync without needing the internet.
 
-...
+<img src="https://raw.githubusercontent.com/ndy-s/1q-sticky-notes/main/assets/diagram.png" alt="Architecture Diagram">
 
 To allow access from outside your local network, you can set up a secure tunnel from the internet to a PC on your LAN. In my setup, I use [Ngrok](https://ngrok.com/) for simplicity. How does it work? A PC that is connected to both the LAN and the internet acts as a middleman. Other PCs on the LAN without direct internet access communicate through this middleman, while remote PCs on the internet can also connect via the same middleman. This setup allows devices on the LAN and remote devices to exchange updates through the middleman, keeping everyone synchronized even if some devices do not have direct internet access.
 
