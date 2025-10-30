@@ -24,6 +24,19 @@ export function setupSocket() {
             await navigator.clipboard.writeText(text);
         } catch (err) {
             console.warn("Clipboard write failed, showing fallback:", err);
+
+            socket.emit("control-event", {
+                type: "keyboard",
+                action: "keyup",
+                key: "Control",
+                code: "KeyV",
+                shift: false,
+                ctrl: true,
+                alt: false,
+                meta: false,
+                isChar: false,
+            });
+
             showCopyPopup(text);
         }
     });
