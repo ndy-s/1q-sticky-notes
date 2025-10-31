@@ -43,6 +43,8 @@ npm run start
 
 Open the app in your browser at `http://localhost:10101` and start adding sticky notes. Everyone on the network will see updates instantly.
 
+<img src="https://raw.githubusercontent.com/ndy-s/1q-sticky-notes/main/assets/preview.png" alt="1Q Sticky Notes Preview">
+
 ## A Personal Note
 To be honest, this project is not perfect yet. I built it mainly to help our small team, so the features are simple and focus only on what we really needed. Security is basic and relies on a shared password, so it's not meant for sensitive data. It works well for LAN use or a simple remote setup, but it's not a polished, full-featured product.  
 
