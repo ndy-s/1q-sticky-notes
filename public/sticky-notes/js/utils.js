@@ -1,3 +1,5 @@
+import {config} from "../../../lib/config.js";
+
 export function setCookie(name, value, days = 365) {
     const d = new Date();
     d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
@@ -30,7 +32,7 @@ export function getTruncatedName(name, maxLength = 20) {
     return name.slice(0, maxLength - ext.length - 1) + '…' + ext;
 }
 
-export async function askPasswordIfNeeded(sharedPw = 'letmein') {
+export async function askPasswordIfNeeded(sharedPw = config.SHARED_PASSWORD) {
     let pw = getCookie('memoPw') || '';
 
     while (true) {

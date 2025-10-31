@@ -10,11 +10,10 @@ import { initUserManager } from './lib/UserManager.js';
 import { setupFileUpload } from './lib/FileManager.js';
 import BrowserController from './lib/BrowserController.js';
 import ControlQueue from './lib/ControlQueue.js';
+import {config} from "./lib/config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const PORT = 10101;
 
 const app = express();
 const server = createServer(app);
@@ -136,7 +135,7 @@ ioRemote.on('connection', async socket => {
     });
 });
 
-server.listen(PORT, async () => {
+server.listen(config.PORT, async () => {
     await browser.launch();
-    console.log(`Sticky Notes + Remote Browser running at http://localhost:${PORT}`);
+    console.log(`Sticky Notes + Remote Browser running at http://localhost:${config.PORT}`);
 });
