@@ -15,3 +15,38 @@ To allow access from outside your local network, you can set up a secure tunnel 
 I also integrated it with my other project [Puppet Browser](https://github.com/ndy-s/puppet-browser), so you can open a remote browser session directly from the app while keeping your current session. I made a few small adjustments on top of the original codebase so the two projects work together smoothly.
 
 The app is simple and light. It has just enough features to solve our main problems without being complicated. Even though it is small, it makes a real difference for our daily work.
+
+## Getting Started
+
+Clone the repo and install dependencies:
+
+```bash
+git clone https://github.com/ndy-s/1q-sticky-notes.git
+cd 1q-sticky-notes
+npm install
+```
+
+Copy the example environment file and configure your settings:
+
+```bash
+cp .env.example .env
+```
+
+* PORT - the port the app will run on (default: 10101)
+* SHARED_PASSWORD - required to access the site (acts as authentication so not everyone can modify notes)
+
+Start the app:
+
+```bash
+npm run start
+```
+
+Open the app in your browser at `http://localhost:10101` and start adding sticky notes. Everyone on the network will see updates instantly.
+
+## A Personal Note
+To be honest, this project is not perfect yet. I built it mainly to help our small team, so the features are simple and focus only on what we really needed. Security is basic and relies on a shared password, so it's not meant for sensitive data. It works well for LAN use or a simple remote setup, but it's not a polished, full-featured product.  
+
+Even so, it does what it was designed to do and helps us stay in sync. I might add more features in the future based on our needs or maybe not, this is the baseline for now. You may also encounter issues or features that don't work as expected, which I haven't noticed yet. Feel free to let me know or contribute through a pull request.
+
+## License
+MIT
