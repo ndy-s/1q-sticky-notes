@@ -36,6 +36,12 @@ const userManager = initUserManager(io);
 const browser = new BrowserController(ioRemote);
 const queue = new ControlQueue(ioRemote);
 
+app.post('/api/validate-password', (req, res) => {
+    const { password } = req.body;
+    if (password === config.SHARED_PASSWORD) res.json({ success: true });
+    else res.json({ success: false });
+});
+
 app.get('/api/notes', async (req, res)=> {
     res.json(notesManager.getNotes())
 });

@@ -1,5 +1,3 @@
-import {config} from "../../../lib/config.js";
-
 export function setCookie(name, value, days = 365) {
     const d = new Date();
     d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
@@ -32,7 +30,7 @@ export function getTruncatedName(name, maxLength = 20) {
     return name.slice(0, maxLength - ext.length - 1) + '…' + ext;
 }
 
-export async function askPasswordIfNeeded(sharedPw = config.SHARED_PASSWORD) {
+export async function askPasswordIfNeeded() {
     let pw = getCookie('memoPw') || '';
 
     while (true) {
@@ -45,7 +43,13 @@ export async function askPasswordIfNeeded(sharedPw = config.SHARED_PASSWORD) {
             continue;
         }
 
-        if (pw === sharedPw) {
+        const res = await fetch('/api/validate-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pw })
+        }).then(r => r.json());
+
+        if (res.success) {
             setCookie('memoPw', pw);
             break;
         }
